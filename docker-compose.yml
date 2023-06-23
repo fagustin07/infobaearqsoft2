@@ -1,0 +1,36 @@
+version: '3'
+services:
+
+  metric:
+    build: ./WeatherMetric
+    container_name: weather_metric
+    ports:
+      - 9000:9000
+    volumes:
+      - ./WeatherMetric/.:/app
+
+  loader:
+    build: ./WeatherLoader
+    container_name: weather_loader
+    ports:
+      - 8080:8080
+    volumes:
+      - ./WeatherLoader/.:/app
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    depends_on:
+      - metric
+    links:
+      - metric
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
