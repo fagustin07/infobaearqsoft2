@@ -1,9 +1,8 @@
-FROM openjdk:17
+FROM maven:3.8.3-openjdk-17
 
 WORKDIR /app
+COPY . .
 
-COPY ./target/WeatherLoader-0.0.1-SNAPSHOT.jar /app
+RUN mvn clean package
 
-EXPOSE 8080
-
-CMD ["java", "-jar", "WeatherLoader-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "./target/weather_loader-0.0.1-SNAPSHOT.jar"]
