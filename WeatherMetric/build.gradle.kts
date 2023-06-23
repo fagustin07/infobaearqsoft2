@@ -21,13 +21,18 @@ repositories {
 extra["springCloudVersion"] = "2021.0.7"
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+	
+	implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+implementation("io.micrometer:micrometer-tracing-bridge-brave:1.1.2")
+
 }
 
 dependencyManagement {
