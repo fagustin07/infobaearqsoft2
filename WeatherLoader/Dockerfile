@@ -1,5 +1,9 @@
-FROM maven:3.8.3-openjdk-17
-ADD . /app
+FROM openjdk:17
+
 WORKDIR /app
-RUN mvn clean package -DskipTests=true
-CMD mvn spring-boot:run
+
+COPY ./target/WeatherLoader-0.0.1-SNAPSHOT.jar /app
+
+EXPOSE 8080
+
+CMD ["java", "-jar", "WeatherLoader-0.0.1-SNAPSHOT.jar"]
