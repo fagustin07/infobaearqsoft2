@@ -21,6 +21,10 @@ class CurrentWeatherSpringboot {
     @RequestMapping(value = ["/current"], method = [RequestMethod.GET])
     fun execute(): ResponseEntity<*>{
         val res = this.currentWeatherService.execute()
+        println("entre aca paaaaa")
+        this.log.info("attaching new weather {}", res)
+        this.log.info("attaching new weather {}", res)
+        this.log.info("attaching new weather {}", res)
         this.log.info("attaching new weather {}", res)
         return ResponseEntity(
                 res,

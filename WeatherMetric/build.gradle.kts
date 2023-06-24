@@ -32,8 +32,7 @@ dependencies {
 
 	implementation("net.logstash.logback:logstash-logback-encoder:4.11")
 	compileOnly("org.projectlombok:lombok")
-	annotationProcessor("org.projectlombok:lombok")
-
+	implementation("org.projectlombok:lombok")
 }
 
 dependencyManagement {
