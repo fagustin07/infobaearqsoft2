@@ -9,6 +9,9 @@ services:
     depends_on:
       - logstash
       - elasticsearch
+      - zipkin
+    links:
+      - zipkin
 
   loader:
     build: ./WeatherLoader
@@ -18,6 +21,9 @@ services:
     depends_on:
       - logstash
       - elasticsearch
+      - zipkin
+    links:
+      - zipkin
 
   prometheus:
     image: prom/prometheus
@@ -82,7 +88,10 @@ services:
   zipkin:
     image: openzipkin/zipkin
     ports:
-     - "9411:9411"
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+      - JAVA_OPTS=-Dzipkin.ui.basepath=/zipkin
 
 volumes:
     elasticsearch_data:

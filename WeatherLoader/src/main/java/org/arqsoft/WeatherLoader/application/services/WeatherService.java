@@ -15,11 +15,6 @@ public class WeatherService {
     @Autowired
     WeatherRepository weatherRepository;
 
-    @Value("${open.weather.latitude}")
-    private String latitude;
-    @Value("${open.weather.longitude}")
-    private String longitude;
-
     public Weather getLatest(String location) throws NoDataFoundException {
         return weatherRepository.getLatest(location);
     }
