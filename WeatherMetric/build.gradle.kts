@@ -31,8 +31,9 @@ dependencies {
 	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
 	implementation("net.logstash.logback:logstash-logback-encoder:4.11")
-	compileOnly("org.projectlombok:lombok")
 	implementation("org.projectlombok:lombok")
+
+	implementation("org.aspectj:aspectjrt:1.8.9")
 }
 
 dependencyManagement {

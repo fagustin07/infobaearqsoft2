@@ -44,6 +44,8 @@ services:
     container_name: grafana
     ports:
       - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.3.3
@@ -95,4 +97,6 @@ services:
 
 volumes:
     elasticsearch_data:
+        driver: local
+    grafana_data:
         driver: local

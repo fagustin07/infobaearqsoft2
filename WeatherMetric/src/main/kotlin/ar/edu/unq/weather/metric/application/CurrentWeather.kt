@@ -1,20 +1,19 @@
 package ar.edu.unq.weather.metric.application
 
+import ar.edu.unq.weather.metric.domain.ILoaderService
+import ar.edu.unq.weather.metric.domain.Locality
 import ar.edu.unq.weather.metric.domain.Unit
 import ar.edu.unq.weather.metric.domain.Weather
 import org.springframework.stereotype.Service
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 
 @Service
-class CurrentWeather(
-        url: String = "http://localhost:8080/api/v1/current"
-) {
+class CurrentWeather {
 
-    private val log: Logger = LoggerFactory.getLogger(CurrentWeather::class.java)
+    @Autowired
+    lateinit var loaderService: ILoaderService
 
-    fun execute(): Weather {
-        this.log.info("attaching new weather {}", Weather(50, Unit.CELSIUS))
-        return Weather(50, Unit.CELSIUS)
+    fun execute(locality: Locality, unit: Unit): Weather {
+        return loaderService.currentWeather(locality)
     }
 }
