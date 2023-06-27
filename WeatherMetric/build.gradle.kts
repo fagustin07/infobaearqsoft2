@@ -1,24 +1,24 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.7.12"
-	id("io.spring.dependency-management") version "1.0.15.RELEASE"
-	kotlin("jvm") version "1.6.21"
-	kotlin("plugin.spring") version "1.6.21"
+  id("org.springframework.boot") version "3.0.8"
+  id("io.spring.dependency-management") version "1.1.0"
+  kotlin("jvm") version "1.7.22"
+  kotlin("plugin.spring") version "1.7.22"
 }
 
 group = "ar.edu.unq"
 version = "0.0.1-SNAPSHOT"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_11
+	sourceCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
 	mavenCentral()
 }
 
-extra["springCloudVersion"] = "2021.0.7"
+extra["springCloudVersion"] = "2022.0.3"
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -33,7 +33,7 @@ dependencies {
 	implementation("net.logstash.logback:logstash-logback-encoder:4.11")
 	implementation("org.projectlombok:lombok")
 
-	implementation("org.aspectj:aspectjrt:1.8.9")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
 }
 
 dependencyManagement {
@@ -45,7 +45,7 @@ dependencyManagement {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs += "-Xjsr305=strict"
-		jvmTarget = "11"
+    	jvmTarget = "17"
 	}
 }
 

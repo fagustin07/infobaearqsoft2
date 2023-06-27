@@ -14,6 +14,6 @@ class CurrentWeather {
     lateinit var loaderService: ILoaderService
 
     fun execute(locality: Locality, unit: Unit): Weather {
-        return loaderService.currentWeather(locality)
+        return loaderService.currentWeather(locality, unit)
     }
 }

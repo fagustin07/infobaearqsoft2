@@ -17,9 +17,9 @@ enum class Unit {
 
 
 interface ILoaderService {
-    fun currentWeather(locality: Locality = Locality.QUILMES, unit: Unit = Unit.CELSIUS): Weather
-    fun avgLastWeek(locality: Locality = Locality.QUILMES, unit: Unit= Unit.CELSIUS): Weather
-    fun lastWeekTemps(locality: Locality = Locality.QUILMES, unit: Unit= Unit.CELSIUS): List<Weather>
-    fun avgLastDay(locality: Locality = Locality.QUILMES, unit: Unit= Unit.CELSIUS): Weather
+    fun currentWeather(locality: Locality, unit: Unit): Weather
+    fun avgLastWeek(locality: Locality, unit: Unit): Weather
+    fun lastWeekTemps(locality: Locality, unit: Unit): List<Weather>
+    fun avgLastDay(locality: Locality, unit: Unit): Weather
 
 }

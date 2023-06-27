@@ -5,6 +5,7 @@ import ar.edu.unq.weather.metric.domain.Locality
 import ar.edu.unq.weather.metric.domain.Unit
 import ar.edu.unq.weather.metric.domain.Weather
 import ar.edu.unq.weather.metric.domain.exceptions.ConnRefException
+import ar.edu.unq.weather.metric.domain.exceptions.LocalityNotFound
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,9 +14,9 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
-import java.lang.RuntimeException
 import java.time.LocalDateTime
-
+import org.springframework.beans.factory.annotation.Value
+import java.time.temporal.ChronoUnit
 
 @Service
 class SyncHttpLoaderService: ILoaderService {
@@ -24,8 +25,11 @@ class SyncHttpLoaderService: ILoaderService {
 
     private val log: Logger = LoggerFactory.getLogger(SyncHttpLoaderService::class.java)
 
-    val baseURL = "http://localhost:8080/api/v1/weather"
+    @Value("${weather.loader.url}")
+    private lateinit var baseURL
     override fun currentWeather(locality: Locality, unit: Unit): Weather {
+        log.info(locality.toString())
+        log.info(unit.toString())
         val resEntity: ResponseEntity<WeatherDTO>
         try {
             val url = "$baseURL/latest?location=${locality.toValue()}"
@@ -39,12 +43,12 @@ class SyncHttpLoaderService: ILoaderService {
         return when (resEntity.statusCode) {
             HttpStatus.OK -> {
                 val weather = resEntity.body!!
-                log.info("Fetch successfully {}", weather)
+                log.info("[FETCH OK] successfully {}", weather)
                 weather.format(unit,locality)
             }
             else -> {
-                log.warn("Fetch failed with status ${resEntity.statusCode}")
-                throw RuntimeException("Not available")
+                log.warn("[FETCH FAIL] Failed with status ${resEntity.statusCode}")
+                throw LocalityNotFound("Not available")
             }
         }
     }
@@ -74,10 +78,10 @@ class WeatherDTO(
         return Weather(
                 temperature = parseTemp(this.temperature, unit),
                 unit = unit,
-                sensation = sensation,
+                sensation = parseTemp(this.sensation, unit),
                 humidity = humidity,
                 locality = locality,
-                date = date
+                date = date.minus(3, ChronoUnit.HOURS)
         )
     }
 
