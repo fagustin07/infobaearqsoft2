@@ -25,8 +25,9 @@ class SyncHttpLoaderService: ILoaderService {
 
     private val log: Logger = LoggerFactory.getLogger(SyncHttpLoaderService::class.java)
 
-    @Value("${weather.loader.url}")
-    private lateinit var baseURL
+    @Value("\${weather.loader.url}")
+    private lateinit var baseURL: String
+
     override fun currentWeather(locality: Locality, unit: Unit): Weather {
         log.info(locality.toString())
         log.info(unit.toString())
