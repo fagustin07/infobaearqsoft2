@@ -7,15 +7,15 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
-class AvgLastWeekWeatherService {
+class AvgLastDayWeatherService {
 
     @Autowired
     lateinit var loaderService: ILoaderService
 
     fun execute(locality: Locality, unit: Unit, period: Period? = null): Weather {
-        val oneWeekAgoStartDate = LocalDate.now().atStartOfDay().minusWeeks(1)
-        val yesterdayEndDate = oneWeekAgoStartDate.plusWeeks(1).minusNanos(1)
-        val currPeriod = period ?: Period(locality.toValue(), oneWeekAgoStartDate, yesterdayEndDate)
+        val yesterdayStart = LocalDate.now().atStartOfDay().minusDays(1)
+        val yesterdayEnd = yesterdayStart.plusDays(1).minusNanos(1)
+        val currPeriod = period ?: Period(locality.toValue(), yesterdayStart, yesterdayEnd)
 
         val weathers = loaderService.weathersBetween(locality, unit, currPeriod)
 

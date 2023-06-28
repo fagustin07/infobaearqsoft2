@@ -20,16 +20,16 @@ class AvgLastWeekSpringbootHandler {
     private val log: Logger = LoggerFactory.getLogger(CurrentWeatherSpringbootHandler::class.java)
 
     @Autowired
-    private lateinit var avgLastWeakWeatherService : AvgLastWeekWeatherService
-    @RequestMapping(value = ["/weather/lastweek/avg"], method = [RequestMethod.POST])
+    private lateinit var avgLastWeekWeatherService : AvgLastWeekWeatherService
+    @RequestMapping(value = ["/weather/lastweek/avg"], method = [RequestMethod.GET])
     fun execute(
-            @RequestParam("locality") locality : Locality,
-            @RequestParam("unit") unit : Unit
+            @RequestParam("locality", required = false) locality : Locality? = null,
+            @RequestParam("unit", required = false) unit : Unit? = null
     ): ResponseEntity<*> {
         this.log.info("[REQUEST] /api/v1/weather/lastweek/avg?locality=${locality}&unit=$unit")
 
         return try {
-            val res = this.avgLastWeakWeatherService.execute(locality, unit)
+            val res = this.avgLastWeekWeatherService.execute(locality ?: Locality.QUILMES, unit ?: Unit.CELSIUS)
             this.log.info("[RESPONSE-OK] /api/v1/weather/lastweek/avg?locality=${locality}&unit=$unit")
             ResponseEntity(
                     res,
