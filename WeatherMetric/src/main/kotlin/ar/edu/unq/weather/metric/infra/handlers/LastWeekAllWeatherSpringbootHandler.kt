@@ -1,6 +1,6 @@
 package ar.edu.unq.weather.metric.infra.handlers
 
-import ar.edu.unq.weather.metric.application.CurrentWeatherService
+import ar.edu.unq.weather.metric.application.AllWeathersLastWeekService
 import ar.edu.unq.weather.metric.domain.Locality
 import ar.edu.unq.weather.metric.domain.Unit
 import ar.edu.unq.weather.metric.infra.ServiceREST
@@ -15,27 +15,28 @@ import org.springframework.web.bind.annotation.RequestParam
 
 @ServiceREST
 @RequestMapping("/api/v1")
-class CurrentWeatherSpringbootHandler {
-    @Autowired
-    private lateinit var currentWeatherService: CurrentWeatherService
+class LastWeekAllWeatherSpringbootHandler {
 
-    private val log: Logger = LoggerFactory.getLogger(CurrentWeatherSpringbootHandler::class.java)
-    @RequestMapping(value = ["/weather/latest"], method = [RequestMethod.GET])
+    private val log: Logger = LoggerFactory.getLogger(LastWeekAllWeatherSpringbootHandler::class.java)
+
+    @Autowired
+    private lateinit var lastWeekWeatherService : AllWeathersLastWeekService
+    @RequestMapping(value = ["/weather/lastweek"], method = [RequestMethod.GET])
     fun execute(
             @RequestParam("locality", required = false) locality : Locality? = null,
             @RequestParam("unit", required = false) unit : Unit? = null
-    ): ResponseEntity<*>{
-        this.log.info("[REQUEST] /api/v1/weather/latest?locality=${locality}&unit=$unit")
+    ): ResponseEntity<*> {
+        this.log.info("[REQUEST] /api/v1/weather/lastweek?locality=${locality}&unit=$unit")
 
         return try {
-            val res = this.currentWeatherService.execute(locality ?: Locality.QUILMES, unit ?: Unit.CELSIUS)
-            this.log.info("[RESPONSE-OK] /api/v1/weather/latest?locality=${locality}&unit=$unit")
+            val res = this.lastWeekWeatherService.execute(locality ?: Locality.QUILMES, unit ?: Unit.CELSIUS)
+            this.log.info("[RESPONSE-OK] /api/v1/weather/lastweek?locality=${locality}&unit=$unit")
             ResponseEntity(
                     res,
                     HttpStatus.OK
             )
         } catch (e: Exception) {
-            this.log.error("[RESPONSE-FAILED] ${e.message} /api/v1/weather/latest?locality=${locality}&unit=$unit")
+            this.log.error("[RESPONSE-FAILED] ${e.message} /api/v1//weather/lastweek?locality=${locality}&unit=$unit")
             ResponseEntity(e.message, HttpStatus.BAD_REQUEST)
         }
     }

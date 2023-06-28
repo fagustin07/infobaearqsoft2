@@ -34,6 +34,10 @@ dependencies {
 	implementation("org.projectlombok:lombok")
 
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+
+	implementation("io.micrometer:micrometer-observation")
+	implementation("io.micrometer:micrometer-tracing-bridge-brave")
+	implementation("io.zipkin.reporter2:zipkin-reporter-brave")
 }
 
 dependencyManagement {

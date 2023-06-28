@@ -11,3 +11,7 @@ abstract class InfoBaeException(msg: String): RuntimeException(msg) {
 }
 
 class ConnRefException(service: String): InfoBaeException("$service not available")
+
+class InfoBaeInternalServerError() : InfoBaeException("Internal server error")
+
+class InfoBaeBadRequestError: InfoBaeException("Bad request")
