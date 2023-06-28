@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 import org.springframework.beans.factory.annotation.Autowired
 
 @Service
-class CurrentWeather {
+class CurrentWeatherService {
 
     @Autowired
     lateinit var loaderService: ILoaderService
