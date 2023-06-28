@@ -20,7 +20,7 @@ class CurrentWeatherSpringbootHandler {
     private lateinit var currentWeatherService: CurrentWeatherService
 
     private val log: Logger = LoggerFactory.getLogger(CurrentWeatherSpringbootHandler::class.java)
-    @RequestMapping(value = ["/weather/current"], method = [RequestMethod.GET])
+    @RequestMapping(value = ["/weather/latest"], method = [RequestMethod.GET])
     fun execute(
             @RequestParam("locality", required = false) locality : Locality? = null,
             @RequestParam("unit", required = false) unit : Unit? = null

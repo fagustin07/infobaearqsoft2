@@ -5,6 +5,7 @@ import ar.edu.unq.weather.metric.domain.Unit
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Service
 class AvgLastWeekWeatherService {
@@ -13,18 +14,18 @@ class AvgLastWeekWeatherService {
     lateinit var loaderService: ILoaderService
 
     fun execute(locality: Locality, unit: Unit, period: Period? = null): Weather {
-        val oneWeekAgoStartDate = LocalDate.now().atStartOfDay().minusWeeks(1)
-        val yesterdayEndDate = oneWeekAgoStartDate.plusWeeks(1).minusNanos(1)
-        val currPeriod = period ?: Period(locality.toValue(), oneWeekAgoStartDate, yesterdayEndDate)
+        val now = LocalDateTime.now()
+        val oneWeekAgoStartDate = now.minusWeeks(1)
+        val currPeriod = period ?: Period(locality.toValue(), oneWeekAgoStartDate, now)
 
-        val weathers = loaderService.weathersBetween(locality, unit, currPeriod)
+        val weathers = loaderService.weathersBetween(locality, unit, currPeriod).sortedByDescending { it.date }
 
         val weatherAcc = weathers.reduce { total, curr ->
             Weather(date = total.date,
                     temperature = total.temperature + curr.temperature,
                     sensation = total.sensation + curr.sensation,
                     humidity = total.humidity + curr.humidity,
-                    unit = unit,
+                    unit = total.unit,
                     locality = locality)
         }
         val size = weathers.size
@@ -34,7 +35,7 @@ class AvgLastWeekWeatherService {
                 temperature = weatherAcc.temperature/ size,
                 sensation = weatherAcc.sensation/ size,
                 humidity = weatherAcc.humidity/ size,
-                unit = Unit.CELSIUS,
+                unit = weatherAcc.unit,
                 locality = locality)
                 .format(unit)
     }

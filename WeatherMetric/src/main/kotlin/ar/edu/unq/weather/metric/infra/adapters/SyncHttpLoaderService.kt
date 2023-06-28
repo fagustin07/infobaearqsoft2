@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
+import java.time.temporal.ChronoUnit
 
 @Service
 class SyncHttpLoaderService: ILoaderService {
@@ -68,8 +69,14 @@ class SyncHttpLoaderService: ILoaderService {
             HttpStatus.OK -> {
                 val weatherList = resEntity.body!!
                 log.info("[POST OK] Weathers list size ${weatherList.size}")
-                weatherList.sortByDescending{it.date}
-                weatherList.map { it.format(unit, locality) }
+                weatherList.map { Weather(
+                        temperature = it.temperature,
+                        unit = Unit.FAHRENHEIT,
+                        sensation = it.sensation,
+                        humidity = it.humidity,
+                        locality = locality,
+                        date = it.date.minus(3, ChronoUnit.HOURS)
+                ) }
             }
             HttpStatus.BAD_REQUEST -> {
                 log.info("[POST FAIL] BAD REQUEST")

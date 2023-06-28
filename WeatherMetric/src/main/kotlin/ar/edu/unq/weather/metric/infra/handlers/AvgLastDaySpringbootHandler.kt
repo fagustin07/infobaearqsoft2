@@ -3,6 +3,7 @@ package ar.edu.unq.weather.metric.infra.handlers
 import ar.edu.unq.weather.metric.application.AvgLastDayWeatherService
 import ar.edu.unq.weather.metric.domain.Locality
 import ar.edu.unq.weather.metric.domain.Unit
+import ar.edu.unq.weather.metric.domain.exceptions.NotFoundException
 import ar.edu.unq.weather.metric.infra.ServiceREST
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam
 @RequestMapping("/api/v1")
 class AvgLastDaySpringbootHandler {
 
-    private val log: Logger = LoggerFactory.getLogger(CurrentWeatherSpringbootHandler::class.java)
+    private val log: Logger = LoggerFactory.getLogger(AvgLastDaySpringbootHandler::class.java)
 
     @Autowired
     private lateinit var avgLastDayWeatherService : AvgLastDayWeatherService
@@ -35,9 +36,9 @@ class AvgLastDaySpringbootHandler {
                     res,
                     HttpStatus.OK
             )
-        } catch (e: Exception) {
+        } catch (e: NotFoundException) {
             this.log.error("[RESPONSE-FAILED] ${e.message} /api/v1//weather/lastday/avg?locality=${locality}&unit=$unit")
-            ResponseEntity(e.message, HttpStatus.BAD_REQUEST)
+            ResponseEntity(e.message, HttpStatus.NOT_FOUND)
         }
     }
 }
