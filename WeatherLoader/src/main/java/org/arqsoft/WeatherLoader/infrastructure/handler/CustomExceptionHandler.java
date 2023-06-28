@@ -1,5 +1,6 @@
 package org.arqsoft.WeatherLoader.infrastructure.handler;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.arqsoft.WeatherLoader.domain.exceptions.NoDataFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,13 +19,17 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(NoDataFoundException.class)
     public ResponseEntity<Object> handleNoDataFoundException(NoDataFoundException exception) {
-        return new ResponseEntity<>(getBody(BAD_REQUEST, exception, "Please enter a valid value"), new HttpHeaders(), BAD_REQUEST);
+        return new ResponseEntity<>(getBody(BAD_REQUEST, exception), new HttpHeaders(), BAD_REQUEST);
     }
 
-    public Map<String, Object> getBody(HttpStatus status, Exception ex, String message) {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleException(HttpServletRequest request, Exception exception) {
+        return new ResponseEntity<>(getBody(BAD_REQUEST, exception), new HttpHeaders(), BAD_REQUEST);
+    }
+
+    public Map<String, Object> getBody(HttpStatus status, Exception ex) {
 
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("message", message);
         body.put("timestamp", new Date());
         body.put("status", status.value());
         body.put("error", status.getReasonPhrase());
