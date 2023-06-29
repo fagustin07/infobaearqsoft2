@@ -24,7 +24,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -38,6 +37,9 @@ dependencies {
 	implementation("io.micrometer:micrometer-observation")
 	implementation("io.micrometer:micrometer-tracing-bridge-brave")
 	implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+
+	implementation("org.springframework.boot:spring-boot-starter-aop")
+	implementation("io.github.resilience4j:resilience4j-spring-boot3:2.0.2")
 }
 
 dependencyManagement {
