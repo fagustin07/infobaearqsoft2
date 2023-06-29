@@ -7,6 +7,8 @@ import org.arqsoft.WeatherLoader.domain.builders.WeatherBuilder;
 import org.arqsoft.WeatherLoader.domain.model.Weather;
 import org.arqsoft.WeatherLoader.domain.ports.PublicDataRepository;
 import org.arqsoft.WeatherLoader.infrastructure.dto.WeatherResponseDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Repository;
@@ -24,6 +26,8 @@ public class OpenWeatherRepository implements PublicDataRepository {
     private String api_key;
     private static final ObjectMapper mapper = new ObjectMapper();
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     public OpenWeatherRepository() {
         restTemplate = new RestTemplateBuilder()
                 .setConnectTimeout(Duration.ofMillis(3000))
@@ -36,11 +40,20 @@ public class OpenWeatherRepository implements PublicDataRepository {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         WeatherResponseDTO weatherResponse;
 
-        String response = this.restTemplate.getForEntity(api_uri + "?lat=" + latitude + "&lon=" + longitude + "&appid=" + api_key, String.class).getBody();
+        String response = "";
 
-        JsonNode jsonResponse = mapper.readTree(response);
-        JsonNode jsonNested = jsonResponse.get("main");
-        weatherResponse = mapper.treeToValue(jsonNested, WeatherResponseDTO.class);
+        this.logger.info("Getting OpenWeather data for " + name);
+
+        try {
+            response = this.restTemplate.getForEntity(api_uri + "?lat=" + latitude + "&lon=" + longitude + "&appid=" + api_key, String.class).getBody();
+            JsonNode jsonResponse = mapper.readTree(response);
+            JsonNode jsonNested = jsonResponse.get("main");
+            weatherResponse = mapper.treeToValue(jsonNested, WeatherResponseDTO.class);
+        }
+        catch(Exception e) {
+            this.logger.info("Error during OpenWeather Scheduled", e);
+            return null;
+        }
 
         return new WeatherBuilder()
                 .withSensation(weatherResponse.getFeels_like())

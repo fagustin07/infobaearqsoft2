@@ -4,6 +4,8 @@ import org.arqsoft.WeatherLoader.domain.model.Location;
 import org.arqsoft.WeatherLoader.domain.model.Weather;
 import org.arqsoft.WeatherLoader.domain.ports.PublicDataRepository;
 import org.arqsoft.WeatherLoader.domain.ports.WeatherRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +21,8 @@ public class PublicDataService {
     @Autowired
     WeatherRepository weatherRepository;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Value("#{'${open.weather.locations}'.split(',')}")
     List<String> locations;
     @Value("#{'${open.weather.latitudes}'.split(',')}")
@@ -30,7 +34,7 @@ public class PublicDataService {
     public void fetchWeather() throws JsonProcessingException {
         for(int i=0; i < locations.size(); i++) {
             Weather weather = publicDataRepository.fetchWeather(latitudes.get(i), longitudes.get(i), locations.get(i));
-            weatherRepository.insert(weather);
+            if(weather != null) { weatherRepository.insert(weather); }
         }
 
     }

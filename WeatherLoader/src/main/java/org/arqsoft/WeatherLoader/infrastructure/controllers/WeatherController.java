@@ -6,9 +6,10 @@ import org.arqsoft.WeatherLoader.application.services.WeatherService;
 import org.arqsoft.WeatherLoader.domain.exceptions.NoDataFoundException;
 import org.arqsoft.WeatherLoader.domain.model.Weather;
 import org.arqsoft.WeatherLoader.infrastructure.dto.PeriodDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -22,14 +23,19 @@ public class WeatherController {
     @Autowired
     private PublicDataService publicDataService;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
     @GetMapping("/latest")
     Weather getLatest(@RequestParam(name="location") String location) throws NoDataFoundException {
+        this.logger.info("[REQUEST] /api/v1/weather/latest?location=" + location);
         return weatherService.getLatest(location);
     }
 
     @PostMapping("/by_period")
     @ResponseBody
     List<Weather> filter_by_period(@RequestBody PeriodDTO periodDTO) {
+        this.logger.info("[REQUEST] /api/v1/weather/by_period", periodDTO);
         return weatherService.filter_by_period(periodDTO.getLocation(), periodDTO.getStartDate(), periodDTO.getEndDate());
     }
 
