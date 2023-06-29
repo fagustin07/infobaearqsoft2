@@ -1,6 +1,7 @@
 package org.arqsoft.WeatherLoader.application.services;
 
 import org.arqsoft.WeatherLoader.domain.exceptions.NoDataFoundException;
+import org.arqsoft.WeatherLoader.domain.exceptions.TimeoutException;
 import org.arqsoft.WeatherLoader.domain.model.Weather;
 import org.arqsoft.WeatherLoader.domain.ports.WeatherRepository;
 import org.junit.After;
