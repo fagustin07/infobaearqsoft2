@@ -27,7 +27,7 @@ class SyncHttpLoaderService: ILoaderService {
     @Value("\${weather.loader.url}")
     private lateinit var baseURL: String
 
-    @Retry(name = "loader-service-retry")
+    @Retry(name = "loader-latest-retry")
     override fun currentWeather(locality: Locality, unit: Unit): Weather {
         val resEntity: ResponseEntity<WeatherDTO>
             val url = "$baseURL/latest?location=${locality.toValue()}"
@@ -59,7 +59,7 @@ class SyncHttpLoaderService: ILoaderService {
         }
     }
 
-    @Retry(name = "loader-service")
+    @Retry(name = "loader-list-retry")
     override fun weathersBetween(locality: Locality, unit: Unit, period: Period): List<Weather> {
         val resEntity: ResponseEntity<Array<WeatherDTO>>
         val url = "$baseURL/by_period"

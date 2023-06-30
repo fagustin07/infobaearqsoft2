@@ -8,6 +8,7 @@ import ar.edu.unq.weather.metric.infra.ServiceREST
 import io.github.resilience4j.bulkhead.annotation.Bulkhead
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.client.RestClientException
+import java.net.ConnectException
 
 @ServiceREST
 @RequestMapping("/api/v1")
@@ -26,8 +28,9 @@ class CurrentWeatherSpringbootHandler {
 
     private val log: Logger = LoggerFactory.getLogger(CurrentWeatherSpringbootHandler::class.java)
     @RequestMapping(value = ["/weather/latest"], method = [RequestMethod.GET])
-    @CircuitBreaker(name="loader-service-circuit-breaker", fallbackMethod="fallbackLoader")
+    @CircuitBreaker(name="loader-latest-circuit-breaker", fallbackMethod="fallbackLoader")
     @Bulkhead(name = "loader-latest-bulkhead")
+    @RateLimiter(name = "loader-latest-rate")
     fun execute(
             @RequestParam("locality", required = false) locality : Locality? = null,
             @RequestParam("unit", required = false) unit : Unit? = null
@@ -42,6 +45,10 @@ class CurrentWeatherSpringbootHandler {
     }
 
     fun fallbackLoader(locality: Locality?, unit: Unit?, e: RestClientException): ResponseEntity<*> {
+        throw ConnRefException("Loader service")
+    }
+
+    fun fallbackLoader(locality: Locality?, unit: Unit?, e: ConnectException): ResponseEntity<*> {
         throw ConnRefException("Loader service")
     }
 }

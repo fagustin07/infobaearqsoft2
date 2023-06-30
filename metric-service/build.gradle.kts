@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  id("org.springframework.boot") version "3.0.8"
-  id("io.spring.dependency-management") version "1.1.0"
-  kotlin("jvm") version "1.7.22"
-  kotlin("plugin.spring") version "1.7.22"
+	id("org.springframework.boot") version "2.7.13"
+	id("io.spring.dependency-management") version "1.0.15.RELEASE"
+	kotlin("jvm") version "1.6.21"
+	kotlin("plugin.spring") version "1.6.21"
 }
 
 group = "ar.edu.unq"
@@ -18,7 +18,7 @@ repositories {
 	mavenCentral()
 }
 
-extra["springCloudVersion"] = "2022.0.3"
+extra["springCloudVersion"] = "2021.0.7"
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -27,19 +27,18 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
-	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+	implementation("io.micrometer:micrometer-registry-prometheus")
 
 	implementation("net.logstash.logback:logstash-logback-encoder:4.11")
 	implementation("org.projectlombok:lombok")
 
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+	implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
 
-	implementation("io.micrometer:micrometer-observation")
-	implementation("io.micrometer:micrometer-tracing-bridge-brave")
-	implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+	implementation("org.springframework.cloud:spring-cloud-sleuth-zipkin")
+	implementation("org.springframework.cloud:spring-cloud-starter-sleuth")
 
 	implementation("org.springframework.boot:spring-boot-starter-aop")
-	implementation("io.github.resilience4j:resilience4j-spring-boot3:2.0.2")
+	implementation("io.github.resilience4j:resilience4j-spring-boot2")
 }
 
 dependencyManagement {

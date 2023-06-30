@@ -1,26 +1,54 @@
+server.port : 9000
+
+weather:
+  loader:
+    url: http://loader:8080/api/v1/weather
+
 management:
-  endpoints.web.exposure.include:
-    - '*'
-  endpoint.health.show-details: always
-  health.circuitbreakers.enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints.web:
+    exposure.include: '*'
+    base-path: /actuator
+  endpoint:
+    prometheus.enabled: true
+    metrics.enabled: true
+    health:
+      show-details: always
 
 resilience4j:
   circuitbreaker:
     instances:
-      loader-service-circuit-breaker:
+      loader-latest-circuit-breaker:
         registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 1000
+        minimumNumberOfCalls: 500
+        permittedNumberOfCallsInHalfOpenState: 20
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 1s
+        failureRateThreshold: 50
+      loader-list-circuit-breaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 25
+        permittedNumberOfCallsInHalfOpenState: 25
         automaticTransitionFromOpenToHalfOpenEnabled: true
         waitDurationInOpenState: 5s
-        failureRateThreshold: 50
+        failureRateThreshold: 30
   retry:
     instances:
-      loader-service-retry:
+      loader-latest-retry:
+        registerHealthIndicator: true
+        maxRetryAttempts: 1
+        waitDuration: 2ms
+        retryExceptions:
+          - org.springframework.web.client.RestClientException
+          - ar.edu.unq.weather.metric.domain.exceptions.InfoBaeInternalServerError
+      loader-list-retry:
         registerHealthIndicator: true
         maxRetryAttempts: 2
-        waitDuration: 50ms
+        waitDuration: 200ms
         retryExceptions:
           - org.springframework.web.client.RestClientException
           - ar.edu.unq.weather.metric.domain.exceptions.InfoBaeInternalServerError
@@ -28,11 +56,25 @@ resilience4j:
     instances:
       loader-list-bulkhead:
         maxConcurrentCalls: 100
-        maxWaitDuration: 500ms
+        maxWaitDuration: 100ms
       loader-latest-bulkhead:
-        maxConcurrentCalls: 1000
-        maxWaitDuration: 50ms
-
-
+        maxConcurrentCalls: 200
+        maxWaitDuration: 100ms
+  ratelimiter:
+    metrics.enabled: true
+    instances:
+      loader-latest-rate:
+        register-health-indicator: true
+        limit-for-period: 1000
+        limit-refresh-period: 500ms
+        timeout-duration: 100ms
 spring:
+  application:
+    name: metric-infobae-service
+  zipkin:
+    baseUrl: http://zipkin:9411
   jackson.serialization.indent_output: true
+
+springdoc:
+  swagger-ui:
+    path: /

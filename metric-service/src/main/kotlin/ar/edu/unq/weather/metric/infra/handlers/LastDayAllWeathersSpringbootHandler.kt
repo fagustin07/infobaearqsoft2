@@ -4,6 +4,7 @@ import ar.edu.unq.weather.metric.application.AllLastDayWeatherService
 import ar.edu.unq.weather.metric.application.AllWeathersLastWeekService
 import ar.edu.unq.weather.metric.domain.Locality
 import ar.edu.unq.weather.metric.domain.Unit
+import ar.edu.unq.weather.metric.domain.exceptions.ConnRefException
 import ar.edu.unq.weather.metric.infra.ServiceREST
 import io.github.resilience4j.bulkhead.annotation.Bulkhead
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.client.RestClientException
 
 @ServiceREST
 @RequestMapping("/api/v1")
@@ -26,7 +28,7 @@ class LastDayAllWeathersSpringbootHandler {
     private lateinit var lastWeekWeatherService: AllLastDayWeatherService
 
     @RequestMapping(value = ["/weather/lastday"], method = [RequestMethod.GET])
-    @CircuitBreaker(name = "loader-service-circuit-breaker", fallbackMethod = "fallbackLoader")
+    @CircuitBreaker(name = "loader-list-circuit-breaker", fallbackMethod = "fallbackLoader")
     @Bulkhead(name = "loader-list-bulkhead")
     fun execute(
             @RequestParam("locality", required = false) locality: Locality? = null,
@@ -40,5 +42,9 @@ class LastDayAllWeathersSpringbootHandler {
                 res,
                 HttpStatus.OK
         )
+    }
+
+    fun fallbackLoader(locality: Locality?, unit: Unit?, e: RestClientException): ResponseEntity<*> {
+        throw ConnRefException("Loader service")
     }
 }
