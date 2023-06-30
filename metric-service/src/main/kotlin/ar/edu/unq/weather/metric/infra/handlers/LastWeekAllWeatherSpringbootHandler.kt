@@ -4,6 +4,8 @@ import ar.edu.unq.weather.metric.application.AllWeathersLastWeekService
 import ar.edu.unq.weather.metric.domain.Locality
 import ar.edu.unq.weather.metric.domain.Unit
 import ar.edu.unq.weather.metric.infra.ServiceREST
+import io.github.resilience4j.bulkhead.annotation.Bulkhead
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,24 +22,22 @@ class LastWeekAllWeatherSpringbootHandler {
     private val log: Logger = LoggerFactory.getLogger(LastWeekAllWeatherSpringbootHandler::class.java)
 
     @Autowired
-    private lateinit var lastWeekWeatherService : AllWeathersLastWeekService
+    private lateinit var lastWeekWeatherService: AllWeathersLastWeekService
+
     @RequestMapping(value = ["/weather/lastweek"], method = [RequestMethod.GET])
+    @CircuitBreaker(name = "loader-service-circuit-breaker", fallbackMethod = "fallbackLoader")
+    @Bulkhead(name = "loader-list-bulkhead")
     fun execute(
-            @RequestParam("locality", required = false) locality : Locality? = null,
-            @RequestParam("unit", required = false) unit : Unit? = null
+            @RequestParam("locality", required = false) locality: Locality? = null,
+            @RequestParam("unit", required = false) unit: Unit? = null
     ): ResponseEntity<*> {
         this.log.info("[REQUEST] /api/v1/weather/lastweek?locality=${locality}&unit=$unit")
 
-        return try {
-            val res = this.lastWeekWeatherService.execute(locality ?: Locality.QUILMES, unit ?: Unit.CELSIUS)
-            this.log.info("[RESPONSE-OK] /api/v1/weather/lastweek?locality=${locality}&unit=$unit")
-            ResponseEntity(
-                    res,
-                    HttpStatus.OK
-            )
-        } catch (e: Exception) {
-            this.log.error("[RESPONSE-FAILED] ${e.message} /api/v1//weather/lastweek?locality=${locality}&unit=$unit")
-            ResponseEntity(e.message, HttpStatus.BAD_REQUEST)
-        }
+        val res = this.lastWeekWeatherService.execute(locality ?: Locality.QUILMES, unit ?: Unit.CELSIUS)
+        this.log.info("[RESPONSE-OK] /api/v1/weather/lastweek?locality=${locality}&unit=$unit")
+        return ResponseEntity(
+                res,
+                HttpStatus.OK
+        )
     }
 }

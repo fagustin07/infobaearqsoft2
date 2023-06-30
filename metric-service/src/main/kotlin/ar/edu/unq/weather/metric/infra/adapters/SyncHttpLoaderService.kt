@@ -5,6 +5,8 @@ import ar.edu.unq.weather.metric.domain.Unit
 import ar.edu.unq.weather.metric.domain.exceptions.ConnRefException
 import ar.edu.unq.weather.metric.domain.exceptions.InfoBaeBadRequestError
 import ar.edu.unq.weather.metric.domain.exceptions.InfoBaeInternalServerError
+import ar.edu.unq.weather.metric.domain.exceptions.LocalityNotFound
+import io.github.resilience4j.retry.annotation.Retry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
 import java.time.temporal.ChronoUnit
+import kotlin.Array
+import kotlin.String
 
 @Service
 class SyncHttpLoaderService: ILoaderService {
@@ -26,38 +30,39 @@ class SyncHttpLoaderService: ILoaderService {
     @Value("\${weather.loader.url}")
     private lateinit var baseURL: String
 
+    @Retry(name = "loader-service-retry")
     override fun currentWeather(locality: Locality, unit: Unit): Weather {
         val resEntity: ResponseEntity<WeatherDTO>
-        try {
             val url = "$baseURL/latest?location=${locality.toValue()}"
             this.log.info("[GET] $url")
             resEntity = restTemplate.getForEntity(url, WeatherDTO::class.java)
-        } catch (err: RestClientException) {
-            this.log.error("[GET FAIL] Loader-Service Connection refused")
-            throw ConnRefException("Loader-Service")
-        }
 
         return when (resEntity.statusCode) {
             HttpStatus.OK -> {
                 val weather = resEntity.body!!
-                log.info("[GET OK] successfully")
+                log.info("[GET OK] $url")
                 weather.format(unit,locality)
             }
             HttpStatus.BAD_REQUEST -> {
-                log.info("[GET FAIL] BAD REQUEST")
+                log.info("[GET FAIL] BAD REQUEST: $url")
                 throw InfoBaeBadRequestError()
             }
+            HttpStatus.NOT_FOUND -> {
+                log.info("[GET FAIL] NOT FOUND: $url")
+                throw LocalityNotFound(locality.toValue())
+            }
             else -> {
-                log.warn("[GET FAIL] Failed with status ${resEntity.statusCode}")
+                log.warn("[GET FAIL] status code ${resEntity.statusCode}: $url")
                 throw InfoBaeInternalServerError()
             }
         }
     }
 
+    @Retry(name = "loader-service")
     override fun weathersBetween(locality: Locality, unit: Unit, period: Period): List<Weather> {
         val resEntity: ResponseEntity<Array<WeatherDTO>>
+        val url = "$baseURL/by_period"
         try {
-            val url = "$baseURL/by_period"
             this.log.info("[POST] $url. locality {}, start {}, end {}",period.location, period.startDate, period.endDate )
             resEntity = restTemplate.postForEntity(url, period, Array<WeatherDTO>::class.java)
         } catch (err: RestClientException) {
@@ -79,11 +84,15 @@ class SyncHttpLoaderService: ILoaderService {
                 ) }
             }
             HttpStatus.BAD_REQUEST -> {
-                log.info("[POST FAIL] BAD REQUEST")
+                log.info("[GET FAIL] BAD REQUEST: $url")
                 throw InfoBaeBadRequestError()
             }
+            HttpStatus.NOT_FOUND -> {
+                log.info("[GET FAIL] NOT FOUND: $url")
+                throw LocalityNotFound(locality.toValue())
+            }
             else -> {
-                log.warn("[POST FAIL] With status ${resEntity.statusCode}")
+                log.warn("[GET FAIL] status code ${resEntity.statusCode}: $url")
                 throw InfoBaeInternalServerError()
             }
         }

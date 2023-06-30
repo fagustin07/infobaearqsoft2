@@ -4,20 +4,35 @@ management:
   endpoint.health.show-details: always
   health.circuitbreakers.enabled: true
 
-resilience4j.circuitbreaker:
-  instances:
-#    backendA:
-#      registerHealthIndicator: true
-#      slidingWindowSize: 100
-    loader-service:
-      registerHealthIndicator: true
-      slidingWindowSize: 10
-      permittedNumberOfCallsInHalfOpenState: 3
-      slidingWindowType: TIME_BASED
-      minimumNumberOfCalls: 4
-      waitDurationInOpenState: 5s
-      failureRateThreshold: 50
-      eventConsumerBufferSize: 10
+resilience4j:
+  circuitbreaker:
+    instances:
+      loader-service-circuit-breaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+  retry:
+    instances:
+      loader-service-retry:
+        registerHealthIndicator: true
+        maxRetryAttempts: 2
+        waitDuration: 50ms
+        retryExceptions:
+          - org.springframework.web.client.RestClientException
+          - ar.edu.unq.weather.metric.domain.exceptions.InfoBaeInternalServerError
+  bulkhead:
+    instances:
+      loader-list-bulkhead:
+        maxConcurrentCalls: 100
+        maxWaitDuration: 500ms
+      loader-latest-bulkhead:
+        maxConcurrentCalls: 1000
+        maxWaitDuration: 50ms
+
 
 spring:
   jackson.serialization.indent_output: true

@@ -3,8 +3,9 @@ package ar.edu.unq.weather.metric.infra.handlers
 import ar.edu.unq.weather.metric.application.AvgLastDayWeatherService
 import ar.edu.unq.weather.metric.domain.Locality
 import ar.edu.unq.weather.metric.domain.Unit
-import ar.edu.unq.weather.metric.domain.exceptions.NotFoundException
 import ar.edu.unq.weather.metric.infra.ServiceREST
+import io.github.resilience4j.bulkhead.annotation.Bulkhead
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,24 +22,22 @@ class AvgLastDaySpringbootHandler {
     private val log: Logger = LoggerFactory.getLogger(AvgLastDaySpringbootHandler::class.java)
 
     @Autowired
-    private lateinit var avgLastDayWeatherService : AvgLastDayWeatherService
+    private lateinit var avgLastDayWeatherService: AvgLastDayWeatherService
+
     @RequestMapping(value = ["/weather/lastday/avg"], method = [RequestMethod.GET])
+    @CircuitBreaker(name = "loader-service-circuit-breaker", fallbackMethod = "fallbackLoader")
+    @Bulkhead(name = "loader-latest-bulkhead")
     fun execute(
-            @RequestParam("locality", required = false) locality : Locality? = null,
-            @RequestParam("unit", required = false) unit : Unit? = null
+            @RequestParam("locality", required = false) locality: Locality? = null,
+            @RequestParam("unit", required = false) unit: Unit? = null
     ): ResponseEntity<*> {
         this.log.info("[REQUEST] /api/v1/weather/lastday/avg?locality=${locality}&unit=$unit")
 
-        return try {
-            val res = this.avgLastDayWeatherService.execute(locality ?: Locality.QUILMES, unit ?: Unit.CELSIUS)
-            this.log.info("[RESPONSE-OK] /api/v1/weather/lastday/avg?locality=${locality}&unit=$unit")
-            ResponseEntity(
-                    res,
-                    HttpStatus.OK
-            )
-        } catch (e: NotFoundException) {
-            this.log.error("[RESPONSE-FAILED] ${e.message} /api/v1//weather/lastday/avg?locality=${locality}&unit=$unit")
-            ResponseEntity(e.message, HttpStatus.NOT_FOUND)
-        }
+        val res = this.avgLastDayWeatherService.execute(locality ?: Locality.QUILMES, unit ?: Unit.CELSIUS)
+        this.log.info("[RESPONSE-OK] /api/v1/weather/lastday/avg?locality=${locality}&unit=$unit")
+        return ResponseEntity(
+                res,
+                HttpStatus.OK
+        )
     }
 }
