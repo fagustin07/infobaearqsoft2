@@ -2,10 +2,7 @@ package ar.edu.unq.weather.metric.infra.adapters
 
 import ar.edu.unq.weather.metric.domain.*
 import ar.edu.unq.weather.metric.domain.Unit
-import ar.edu.unq.weather.metric.domain.exceptions.ConnRefException
-import ar.edu.unq.weather.metric.domain.exceptions.InfoBaeBadRequestError
-import ar.edu.unq.weather.metric.domain.exceptions.InfoBaeInternalServerError
-import ar.edu.unq.weather.metric.domain.exceptions.LocalityNotFound
+import ar.edu.unq.weather.metric.domain.exceptions.*
 import io.github.resilience4j.retry.annotation.Retry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -47,6 +44,10 @@ class SyncHttpLoaderService: ILoaderService {
                 log.info("[GET FAIL] BAD REQUEST: $url")
                 throw InfoBaeBadRequestError()
             }
+            HttpStatus.TOO_MANY_REQUESTS -> {
+                log.info("[GET FAIL] TOO MANY REQUESTS: $url")
+                throw InfoBaeTooManyRequest()
+            }
             HttpStatus.NOT_FOUND -> {
                 log.info("[GET FAIL] NOT FOUND: $url")
                 throw LocalityNotFound(locality.toValue())
@@ -86,6 +87,10 @@ class SyncHttpLoaderService: ILoaderService {
             HttpStatus.BAD_REQUEST -> {
                 log.info("[GET FAIL] BAD REQUEST: $url")
                 throw InfoBaeBadRequestError()
+            }
+            HttpStatus.TOO_MANY_REQUESTS -> {
+                log.info("[GET FAIL] TOO MANY REQUESTS: $url")
+                throw InfoBaeTooManyRequest()
             }
             HttpStatus.NOT_FOUND -> {
                 log.info("[GET FAIL] NOT FOUND: $url")

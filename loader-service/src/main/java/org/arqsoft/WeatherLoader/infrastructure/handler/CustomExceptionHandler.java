@@ -3,7 +3,6 @@ package org.arqsoft.WeatherLoader.infrastructure.handler;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import jakarta.servlet.http.HttpServletRequest;
 import org.arqsoft.WeatherLoader.domain.exceptions.NoDataFoundException;
-import org.arqsoft.WeatherLoader.domain.exceptions.TimeoutException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +20,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(NoDataFoundException.class)
     public ResponseEntity<Object> handleNoDataFoundException(NoDataFoundException exception) {
-        return new ResponseEntity<>(getBody(BAD_REQUEST, exception), new HttpHeaders(), BAD_REQUEST);
+        return new ResponseEntity<>(getBody(NOT_FOUND, exception), new HttpHeaders(), NOT_FOUND);
     }
 
     @ExceptionHandler(RequestNotPermitted.class)
@@ -31,7 +30,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(HttpServletRequest request, Exception exception) {
-        return new ResponseEntity<>(getBody(BAD_REQUEST, exception), new HttpHeaders(), BAD_REQUEST);
+        return new ResponseEntity<>(getBody(INTERNAL_SERVER_ERROR, exception), new HttpHeaders(), INTERNAL_SERVER_ERROR);
     }
 
     public Map<String, Object> getBody(HttpStatus status, Exception ex) {

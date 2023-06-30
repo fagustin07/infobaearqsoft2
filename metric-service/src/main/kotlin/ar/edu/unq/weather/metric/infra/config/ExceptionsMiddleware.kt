@@ -30,7 +30,7 @@ class ExceptionsMiddleware {
 
     @ExceptionHandler(BulkheadFullException::class)
     fun handleTooManyRequests(exception: BulkheadFullException): ResponseEntity<*> {
-        return ResponseEntity<Any>(getBody(HttpStatus.TOO_MANY_REQUESTS, exception), HttpHeaders(), HttpStatus.TOO_MANY_REQUESTS)
+        return ResponseEntity<Any>(getBody(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED, exception), HttpHeaders(), HttpStatus.BANDWIDTH_LIMIT_EXCEEDED)
     }
 
     @ExceptionHandler(InfoBaeBadRequestError::class)

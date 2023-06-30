@@ -15,3 +15,5 @@ class ConnRefException(service: String): InfoBaeException("$service not availabl
 class InfoBaeInternalServerError() : InfoBaeException("Internal server error")
 
 class InfoBaeBadRequestError: InfoBaeException("Bad request")
+
+class InfoBaeTooManyRequest : InfoBaeException("TOO_MANY_REQUESTS")
