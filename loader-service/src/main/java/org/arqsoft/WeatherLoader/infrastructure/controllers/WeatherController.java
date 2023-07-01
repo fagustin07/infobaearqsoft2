@@ -1,23 +1,18 @@
 package org.arqsoft.WeatherLoader.infrastructure.controllers;
 
+
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
 import org.arqsoft.WeatherLoader.application.services.PublicDataService;
 import org.arqsoft.WeatherLoader.application.services.WeatherService;
 import org.arqsoft.WeatherLoader.domain.exceptions.NoDataFoundException;
-import org.arqsoft.WeatherLoader.domain.exceptions.TimeoutException;
 import org.arqsoft.WeatherLoader.domain.model.Weather;
 import org.arqsoft.WeatherLoader.infrastructure.dto.PeriodDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequiredArgsConstructor

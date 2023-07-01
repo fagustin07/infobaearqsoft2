@@ -1,7 +1,6 @@
 package org.arqsoft.WeatherLoader.infrastructure.handler;
 
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
-import jakarta.servlet.http.HttpServletRequest;
 import org.arqsoft.WeatherLoader.domain.exceptions.NoDataFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
