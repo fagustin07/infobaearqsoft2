@@ -2,7 +2,7 @@ server.port : 9000
 
 weather:
   loader:
-    url: http://loader:8080/api/v1/weather
+    url: http://localhost:8080/api/v1/weather
 
 management:
   tracing:
@@ -16,33 +16,45 @@ management:
     metrics.enabled: true
     health:
       show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+    ratelimiters:
+      enabled: true
 
 resilience4j:
   circuitbreaker:
     instances:
       loader-latest-circuit-breaker:
         registerHealthIndicator: true
-        slidingWindowSize: 1000
-        minimumNumberOfCalls: 500
-        permittedNumberOfCallsInHalfOpenState: 20
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 1s
+        waitDurationInOpenState: 2s
         failureRateThreshold: 50
+        ignoreExceptions:
+          - ar.edu.unq.weather.metric.domain.exceptions.NotFoundException
+          - ar.edu.unq.weather.metric.domain.exceptions.InfoBaeBadRequestError
       loader-list-circuit-breaker:
         registerHealthIndicator: true
-        slidingWindowSize: 50
-        minimumNumberOfCalls: 25
-        permittedNumberOfCallsInHalfOpenState: 25
+        slidingWindowSize: 20
+        minimumNumberOfCalls: 10
+        permittedNumberOfCallsInHalfOpenState: 6
         automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 5s
-        failureRateThreshold: 30
+        waitDurationInOpenState: 4s
+        failureRateThreshold: 60
+        ignoreExceptions:
+          - ar.edu.unq.weather.metric.domain.exceptions.NotFoundException
+          - ar.edu.unq.weather.metric.domain.exceptions.InfoBaeBadRequestError
   retry:
     instances:
       loader-latest-retry:
         registerHealthIndicator: true
         maxRetryAttempts: 1
-        waitDuration: 2ms
+        waitDuration: 20ms
         retryExceptions:
+          - java.net.SocketTimeoutException
           - org.springframework.web.client.RestClientException
           - ar.edu.unq.weather.metric.domain.exceptions.InfoBaeInternalServerError
       loader-list-retry:
@@ -50,6 +62,7 @@ resilience4j:
         maxRetryAttempts: 2
         waitDuration: 200ms
         retryExceptions:
+          - java.net.SocketTimeoutException
           - org.springframework.web.client.RestClientException
           - ar.edu.unq.weather.metric.domain.exceptions.InfoBaeInternalServerError
   bulkhead:
@@ -58,7 +71,7 @@ resilience4j:
         maxConcurrentCalls: 100
         maxWaitDuration: 100ms
       loader-latest-bulkhead:
-        maxConcurrentCalls: 200
+        maxConcurrentCalls: 20
         maxWaitDuration: 100ms
   ratelimiter:
     metrics.enabled: true
@@ -66,13 +79,13 @@ resilience4j:
       loader-latest-rate:
         register-health-indicator: true
         limit-for-period: 1000
-        limit-refresh-period: 500ms
+        limit-refresh-period: 2s
         timeout-duration: 100ms
 spring:
   application:
     name: metric-infobae-service
   zipkin:
-    baseUrl: http://zipkin:9411
+    baseUrl: http://localhost:9411
   jackson.serialization.indent_output: true
 
 springdoc:

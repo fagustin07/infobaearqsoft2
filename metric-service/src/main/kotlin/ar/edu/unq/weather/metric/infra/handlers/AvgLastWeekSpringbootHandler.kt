@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.client.RestClientException
+import java.net.ConnectException
 
 @ServiceREST
 @RequestMapping("/api/v1")
@@ -44,6 +45,7 @@ class AvgLastWeekSpringbootHandler {
     }
 
     fun fallbackLoader(locality: Locality?, unit: Unit?, e: RestClientException): ResponseEntity<*> {
+        log.warn("${e.cause}, ${e.message}")
         throw ConnRefException("Loader service")
     }
 }

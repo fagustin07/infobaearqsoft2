@@ -21,7 +21,7 @@ class AvgLastDayWeatherService {
 
         val weathers = loaderService.weathersBetween(locality, unit, currPeriod).sortedByDescending { it.date }
 
-        if (weathers.isEmpty()) throw WeatherNotFoundException("Actualmente no poseemos informacion del dia solicitado")
+        if (weathers.isEmpty()) throw WeatherNotFoundException("Not registered data from ${locality.toValue()}")
         val weatherAcc = weathers.reduce { total, curr ->
             Weather(date = total.date,
                     temperature = total.temperature + curr.temperature,

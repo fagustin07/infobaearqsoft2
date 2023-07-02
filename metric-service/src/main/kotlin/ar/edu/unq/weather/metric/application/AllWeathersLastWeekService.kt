@@ -2,6 +2,8 @@ package ar.edu.unq.weather.metric.application
 
 import ar.edu.unq.weather.metric.domain.*
 import ar.edu.unq.weather.metric.domain.Unit
+import ar.edu.unq.weather.metric.domain.exceptions.LocalityNotFound
+import ar.edu.unq.weather.metric.domain.exceptions.WeatherNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -19,6 +21,7 @@ class AllWeathersLastWeekService {
         val currPeriod = period ?: Period(locality.toValue(), oneWeekAgoStartDate, now)
 
         val weathers = loaderService.weathersBetween(locality, unit, currPeriod)
+        if (weathers.isEmpty()) throw WeatherNotFoundException("Not registered data from ${locality.toValue()}")
 
         return weathers.sortedByDescending { it.date }
     }

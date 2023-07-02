@@ -1,7 +1,6 @@
 package ar.edu.unq.weather.metric.infra.handlers
 
 import ar.edu.unq.weather.metric.application.AllLastDayWeatherService
-import ar.edu.unq.weather.metric.application.AllWeathersLastWeekService
 import ar.edu.unq.weather.metric.domain.Locality
 import ar.edu.unq.weather.metric.domain.Unit
 import ar.edu.unq.weather.metric.domain.exceptions.ConnRefException
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.client.RestClientException
+import java.net.ConnectException
 
 @ServiceREST
 @RequestMapping("/api/v1")
@@ -45,6 +45,7 @@ class LastDayAllWeathersSpringbootHandler {
     }
 
     fun fallbackLoader(locality: Locality?, unit: Unit?, e: RestClientException): ResponseEntity<*> {
+        log.warn("${e.cause}, ${e.message}")
         throw ConnRefException("Loader service")
     }
 }

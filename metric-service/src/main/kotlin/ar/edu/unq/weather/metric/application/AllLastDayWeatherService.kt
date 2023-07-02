@@ -19,7 +19,7 @@ class AllLastDayWeatherService {
         val currPeriod = period ?: Period(locality.toValue(), yesterdayStart, now)
         val weathers = loaderService.weathersBetween(locality, unit, currPeriod)
 
-        if (weathers.isEmpty()) throw WeatherNotFoundException("Actualmente no poseemos informacion del dia solicitado")
+        if (weathers.isEmpty()) throw WeatherNotFoundException("Not registered data from ${locality.toValue()}")
 
 
         return weathers.sortedByDescending { it.date }

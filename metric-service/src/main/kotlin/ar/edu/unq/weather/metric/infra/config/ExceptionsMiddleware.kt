@@ -18,53 +18,65 @@ import java.util.*
 
 @RestControllerAdvice
 class ExceptionsMiddleware {
-    private val log: Logger = LoggerFactory.getLogger(AvgLastDaySpringbootHandler::class.java)
+    private val log: Logger = LoggerFactory.getLogger(ExceptionsMiddleware::class.java)
 
     @ExceptionHandler(NotFoundException::class)
     fun handleNoDataFoundException(exception: NotFoundException): ResponseEntity<*> {
-        log.warn("[REQUEST FAIL]:" + HttpStatus.NOT_FOUND.value() + HttpStatus.NOT_FOUND.reasonPhrase)
+        log.warn("[REQUEST FAIL]:" + HttpStatus.NOT_FOUND.value() + " " + HttpStatus.NOT_FOUND.reasonPhrase)
         return ResponseEntity<Any>(getBody(HttpStatus.NOT_FOUND, exception), HttpHeaders(), HttpStatus.NOT_FOUND)
     }
 
     @ExceptionHandler(CallNotPermittedException::class)
     fun handleCallNotPermittedException(exception: CallNotPermittedException): ResponseEntity<*> {
-        log.error("[REQUEST FAIL]:" + HttpStatus.SERVICE_UNAVAILABLE.value() + HttpStatus.SERVICE_UNAVAILABLE.reasonPhrase)
-        return ResponseEntity<Any>(getBody(HttpStatus.SERVICE_UNAVAILABLE, exception), HttpHeaders(), HttpStatus.SERVICE_UNAVAILABLE)
+        log.error("[REQUEST FAIL]:" + HttpStatus.SERVICE_UNAVAILABLE.value() + " " + HttpStatus.SERVICE_UNAVAILABLE.reasonPhrase)
+        return ResponseEntity(getBody(HttpStatus.SERVICE_UNAVAILABLE, exception), HttpHeaders(), HttpStatus.SERVICE_UNAVAILABLE)
     }
 
-    @ExceptionHandler(ConnRefException::class, SocketException::class, SocketTimeoutException::class)
+    @ExceptionHandler(ConnRefException::class)
     fun handleConnRef(exception: ConnRefException): ResponseEntity<*> {
-        log.error("[REQUEST FAIL]:" + HttpStatus.SERVICE_UNAVAILABLE.value() + HttpStatus.SERVICE_UNAVAILABLE.reasonPhrase)
-        return ResponseEntity<Any>(getBody(HttpStatus.SERVICE_UNAVAILABLE, exception), HttpHeaders(), HttpStatus.SERVICE_UNAVAILABLE)
+        log.error("[REQUEST FAIL]:" + HttpStatus.SERVICE_UNAVAILABLE.value() + " " + HttpStatus.SERVICE_UNAVAILABLE.reasonPhrase)
+        return ResponseEntity(getBody(HttpStatus.SERVICE_UNAVAILABLE, exception), HttpHeaders(), HttpStatus.SERVICE_UNAVAILABLE)
+    }
+
+    @ExceptionHandler(SocketException::class)
+    fun handleConnRef(exception: SocketException): ResponseEntity<*> {
+        log.error("[REQUEST FAIL]:" + HttpStatus.REQUEST_TIMEOUT.value() + " " + HttpStatus.REQUEST_TIMEOUT.reasonPhrase)
+        return ResponseEntity(null, HttpHeaders(), HttpStatus.REQUEST_TIMEOUT)
     }
 
     @ExceptionHandler(BulkheadFullException::class)
     fun handleTooManyRequests(exception: BulkheadFullException): ResponseEntity<*> {
-        log.error("[REQUEST FAIL]:" + HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value() + HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.reasonPhrase)
-        return ResponseEntity<Any>(getBody(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED, exception), HttpHeaders(), HttpStatus.BANDWIDTH_LIMIT_EXCEEDED)
+        log.error("[REQUEST FAIL]:" + HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value() + " " + HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.reasonPhrase)
+        return ResponseEntity(getBody(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED, exception), HttpHeaders(), HttpStatus.BANDWIDTH_LIMIT_EXCEEDED)
     }
 
     @ExceptionHandler(InfoBaeBadRequestError::class)
     fun handleBadReq(exception: InfoBaeBadRequestError): ResponseEntity<*> {
-        log.warn("[REQUEST FAIL]:" + HttpStatus.INTERNAL_SERVER_ERROR.value() + HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase)
-        return ResponseEntity<Any>(getBody(HttpStatus.BAD_REQUEST, exception), HttpHeaders(), HttpStatus.BAD_REQUEST)
+        log.warn("[REQUEST FAIL]:" + HttpStatus.INTERNAL_SERVER_ERROR.value() + " " + HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase)
+        return ResponseEntity(getBody(HttpStatus.INTERNAL_SERVER_ERROR, exception), HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     @ExceptionHandler(RequestNotPermitted::class)
     fun handleTooMany(exception: RequestNotPermitted): ResponseEntity<*> {
-        log.error("[REQUEST FAIL]:" + HttpStatus.TOO_MANY_REQUESTS.value() + HttpStatus.TOO_MANY_REQUESTS.reasonPhrase)
-        return ResponseEntity<Any>(getBody(HttpStatus.TOO_MANY_REQUESTS, exception), HttpHeaders(), HttpStatus.TOO_MANY_REQUESTS)
+        log.error("[REQUEST FAIL]:" + HttpStatus.TOO_MANY_REQUESTS.value() + " " + HttpStatus.TOO_MANY_REQUESTS.reasonPhrase)
+        return ResponseEntity(getBody(HttpStatus.TOO_MANY_REQUESTS, exception), HttpHeaders(), HttpStatus.TOO_MANY_REQUESTS)
     }
 
-    @ExceptionHandler(InfoBaeInternalServerError::class, InfoBaeException::class, RuntimeException::class)
+    @ExceptionHandler(InfoBaeInternalServerError::class, InfoBaeException::class)
     fun handleIntErr(exception: InfoBaeInternalServerError): ResponseEntity<*> {
-        log.error("[REQUEST FAIL]:" + HttpStatus.INTERNAL_SERVER_ERROR.value() + HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase)
-        return ResponseEntity<Any>(getBody(HttpStatus.INTERNAL_SERVER_ERROR, exception), HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR)
+        log.error("[REQUEST FAIL]:" + HttpStatus.INTERNAL_SERVER_ERROR.value() + " " + HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase)
+        return ResponseEntity(getBody(HttpStatus.INTERNAL_SERVER_ERROR, exception), HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    @ExceptionHandler(RuntimeException::class)
+    fun handleIntErr(exception: RuntimeException): ResponseEntity<*> {
+        log.error("[REQUEST FAIL]:" + HttpStatus.INTERNAL_SERVER_ERROR.value() + " " + HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase)
+        return ResponseEntity(null, HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
 
 
-    fun getBody(status: HttpStatus, ex: Exception): Map<String, Any>? {
+    fun getBody(status: HttpStatus, ex: Exception): Map<String, Any> {
         val body: MutableMap<String, Any> = LinkedHashMap()
         body["timestamp"] = Date()
         body["status"] = status.value()
