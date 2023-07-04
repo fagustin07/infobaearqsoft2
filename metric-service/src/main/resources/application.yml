@@ -27,12 +27,12 @@ resilience4j:
     instances:
       loader-latest-circuit-breaker:
         registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 1000
+        minimumNumberOfCalls: 100
+        permittedNumberOfCallsInHalfOpenState: 10
         automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 2s
-        failureRateThreshold: 50
+        waitDurationInOpenState: 500ms
+        failureRateThreshold: 60
         ignoreExceptions:
           - ar.edu.unq.weather.metric.domain.exceptions.NotFoundException
           - ar.edu.unq.weather.metric.domain.exceptions.InfoBaeBadRequestError
@@ -52,7 +52,7 @@ resilience4j:
       loader-latest-retry:
         registerHealthIndicator: true
         maxRetryAttempts: 1
-        waitDuration: 20ms
+        waitDuration: 2ms
         retryExceptions:
           - java.net.SocketTimeoutException
           - org.springframework.web.client.RestClientException
@@ -71,14 +71,14 @@ resilience4j:
         maxConcurrentCalls: 100
         maxWaitDuration: 100ms
       loader-latest-bulkhead:
-        maxConcurrentCalls: 20
+        maxConcurrentCalls: 200
         maxWaitDuration: 100ms
   ratelimiter:
     metrics.enabled: true
     instances:
       loader-latest-rate:
         register-health-indicator: true
-        limit-for-period: 1000
+        limit-for-period: 10000
         limit-refresh-period: 2s
         timeout-duration: 100ms
 spring:
